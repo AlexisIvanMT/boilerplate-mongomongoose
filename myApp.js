@@ -1,4 +1,12 @@
-require('dotenv').config();
+
+require('dotenv').config(); // para leer las variables del .env
+const mongoose = require('mongoose'); // para conectarse a la base de datos
+
+
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
 
 
 let Person;
