@@ -1,22 +1,71 @@
 
 require('dotenv').config(); // para leer las variables del .env
 const mongoose = require('mongoose'); // para conectarse a la base de datos
+const Schema = mongoose.Schema; // para crear el esquema de la base de datos
 
 
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
+mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    console.log('✅ Conectado a la base de datos');
+    console.log('Estado:', mongoose.connection.readyState);
+  })
+  .catch(err => {
+    console.error('❌ Error al conectar a la base de datos:', err);
+  });
 
 
-let Person;
+const personSchema = new Schema({
+  name: { type: String, required: true },
+  age: Number,
+  favoriteFoods: [String]
+});
+// Crear el modelo a partir del esquema
+// El modelo es una clase que nos permite crear y manipular documentos en la base de datos
+Person = mongoose.model("Person", personSchema);
 
+
+// Crear un nuevo documento
+// El documento es una instancia del modelo
 const createAndSavePerson = (done) => {
-  done(null /*, data*/);
+  const person = new Person({
+    name: "John Doe",
+    age: 30,
+    favoriteFoods: ["Pizza", "Burger"]
+  });
+  person.save((err, data) => {
+    if (err) {
+      console.error('❌ Error al guardar la persona:', err);
+      done(err);
+    } else {
+      console.log('✅ Persona guardada:', data);
+      done(null, data);
+    }
+  })
 };
 
+
+/** 4) Create many People with `Model.create()` */
+var arrayOfPeople = [
+  {name: "Frankie", age: 74, favoriteFoods: ["Del Taco"]},
+  {name: "Sol", age: 76, favoriteFoods: ["roast chicken"]},
+  {name: "Robert", age: 78, favoriteFoods: ["wine"]}
+];
+
+// Crear muchas personas a la vez
+// Model.create() es un método estático que se utiliza para crear documentos en la base de datos
+// El método Model.create() toma un array de objetos y los guarda en la base de datos
+// El método Model.create() devuelve una promesa que se resuelve con los documentos creados
 const createManyPeople = (arrayOfPeople, done) => {
-  done(null /*, data*/);
+  Person.create(arrayOfPeople, (err, data) => {
+    if (err) {
+      console.error('❌ Error al guardar las personas:', err);
+      done(err);
+    } else {
+      console.log('✅ Personas guardadas:', data);
+      done(null, data);
+    }
+  });
+  
 };
 
 const findPeopleByName = (personName, done) => {
